@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <!-- key change: lock height to device + avoid scroll bounce -->
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
   <meta name="theme-color" content="#0F172A" />
   <title>AminLogic Speedometer & Trip Tracker</title>
@@ -26,9 +27,22 @@
       --good:#34D399;
       --warn:#FBBF24;
       --bad:#FB7185;
+
+      /* layout controls */
+      --navH: 72px; /* bottom nav height estimate */
+      --wrapPadTop: 14px;
+      --wrapPadX: 14px;
+      --wrapPadBottom: 12px;
     }
 
     *{ box-sizing:border-box; }
+
+    /* key change: prevent page scroll; we handle layout inside */
+    html, body{
+      height: 100%;
+      overflow: hidden;
+    }
+
     body{
       margin:0;
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
@@ -37,14 +51,16 @@
         radial-gradient(1200px 800px at 20% 10%, rgba(99,102,241,.18), transparent 55%),
         radial-gradient(900px 700px at 80% 15%, rgba(34,211,238,.14), transparent 55%),
         linear-gradient(180deg, var(--bg0), var(--bg1));
-      min-height:100vh;
       padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) 0;
     }
 
+    /* key change: make app fit viewport height minus bottom nav */
     .wrap{
       max-width: 980px;
       margin: 0 auto;
-      padding: 18px 16px 90px;
+      padding: var(--wrapPadTop) var(--wrapPadX) calc(var(--wrapPadBottom) + var(--navH));
+      height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+      overflow: hidden; /* prevent scroll on main container */
     }
 
     /* Header */
@@ -53,7 +69,7 @@
       align-items:center;
       justify-content:space-between;
       gap:12px;
-      margin-bottom: 16px;
+      margin-bottom: 12px;
     }
     .brand{
       display:flex;
@@ -370,6 +386,75 @@
       font-size: 11px;
       color: rgba(148,163,184,.8);
     }
+
+    /* =======================
+       PHONE COMPACT MODE
+       Goal: make Speed screen fit without scroll
+       ======================= */
+    @media (max-width: 420px), (max-height: 780px) {
+      :root{
+        --wrapPadTop: 12px;
+        --wrapPadX: 12px;
+        --wrapPadBottom: 10px;
+        --navH: 66px;
+      }
+
+      .topbar{ margin-bottom: 10px; gap: 8px; }
+      .logo{ width: 38px; height: 38px; border-radius: 12px; }
+      .brand h1{ font-size: 14px; }
+      .brand p{ font-size: 11px; }
+      .chip{ padding: 6px 8px; font-size: 11px; }
+
+      .cardHeader{ padding: 10px 10px 8px; }
+      .cardBody{ padding: 10px; }
+      .sub{ font-size: 11px; }
+
+      .big{ font-size: 40px; line-height: 1; }
+
+      /* hide long tip text on phones */
+      .webviewHint{ display: none !important; }
+
+      .hr{ margin: 10px 0; }
+
+      /* two-column stats so everything fits */
+      .row{
+        display:grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+      }
+
+      .stat{
+        padding: 10px;
+        border-radius: 14px;
+      }
+      .stat .k{ font-size: 11px; margin-bottom: 4px; }
+      .stat .v{ font-size: 22px; }
+      .stat .u{ font-size: 11px; }
+
+      /* make status card smaller */
+      .speedBox .stat{
+        flex: 0 1 200px !important;
+        min-width: 190px !important;
+        padding: 10px !important;
+      }
+
+      .btnRow{ gap: 8px; margin-top: 10px; }
+      button, .btn{
+        padding: 9px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+      }
+
+      /* keep the motivational line but make it tighter */
+      .note{ font-size: 11px; }
+
+      .nav{ padding: 8px 10px calc(8px + env(safe-area-inset-bottom)); }
+      .tab{
+        padding: 9px 8px;
+        font-size: 12px;
+        border-radius: 12px;
+      }
+    }
   </style>
 </head>
 
@@ -395,7 +480,8 @@
       <div class="cardHeader">
         <div>
           <h2>Live Speedometer</h2>
-          <div class="sub">Uses device GPS speed when available</div>
+          <!-- slightly shorter line so it fits better -->
+          <div class="sub">GPS speed when available</div>
         </div>
         <span class="pill" id="permHint">📍 Location required</span>
       </div>
@@ -450,7 +536,7 @@
         <div class="hr"></div>
 
         <div class="note">
-        Real-time speed insights and trip tracking, designed for everyday driving.
+          Real-time speed insights and trip tracking, designed for everyday driving.
         </div>
       </div>
     </section>
@@ -465,7 +551,7 @@
         <span class="pill">🗓️ Plan • Save • Repeat</span>
       </div>
 
-      <div class="cardBody">
+      <div class="cardBody" style="overflow:auto; max-height: calc(100vh - 220px);">
         <form id="tripForm">
           <div class="formGrid">
             <div>
@@ -514,7 +600,7 @@
           </div>
 
           <div class="webviewHint">
-            Trips are stored on this device only. No accounts, no payments, no drivers.
+            Trips are stored on this device only.
           </div>
         </form>
       </div>
@@ -530,7 +616,7 @@
         <button class="danger" id="btnClearTrips">🗑 Clear</button>
       </div>
 
-      <div class="cardBody">
+      <div class="cardBody" style="overflow:auto; max-height: calc(100vh - 220px);">
         <div id="emptyState" class="note">No trips saved yet. Create one in Trip Planner.</div>
         <div id="tripList" class="list"></div>
       </div>
@@ -542,7 +628,7 @@
   </div>
 
   <!-- Bottom nav (Pro removed) -->
-  <div class="nav">
+  <div class="nav" id="bottomNav">
     <div class="navInner">
       <div class="tab active" data-view="dashboard">Speed</div>
       <div class="tab" data-view="planner">Planner</div>
@@ -551,6 +637,16 @@
   </div>
 
   <script>
+    // ======== dynamic nav height -> ensures wrap padding always correct =========
+    function syncNavHeight(){
+      const nav = document.getElementById("bottomNav");
+      if(!nav) return;
+      const h = nav.getBoundingClientRect().height;
+      document.documentElement.style.setProperty("--navH", Math.ceil(h) + "px");
+    }
+    window.addEventListener("resize", syncNavHeight);
+    window.addEventListener("orientationchange", syncNavHeight);
+
     // ======== Simple UI router (tabs) ========
     const views = {
       dashboard: document.getElementById("view-dashboard"),
@@ -705,6 +801,9 @@
         setStatus("Not supported", "Geolocation not available");
         return;
       }
+
+      // do not create multiple watches
+      if(watchId != null) return;
 
       watchId = navigator.geolocation.watchPosition(
         onPos,
@@ -917,6 +1016,12 @@
     document.getElementById("year").textContent = new Date().getFullYear();
     updateUI(0, null);
     setStatus("Not tracking", "Press Start to begin");
+
+    // measure nav height after first paint
+    requestAnimationFrame(() => {
+      syncNavHeight();
+    });
   </script>
 </body>
 </html>
+```0
