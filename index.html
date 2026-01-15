@@ -6,12 +6,16 @@
   <meta name="theme-color" content="#0F172A" />
   <title>AminLogic — Speedometer & Trip Tracker</title>
 
+  <!-- ✅ Web + Android icons (served from your GitHub repo root) -->
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+  <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+  <link rel="apple-touch-icon" sizes="192xi91" href="icon-192.png">
+
   <style>
     :root{
       --bg0:#0B1220;
       --bg1:#0F172A;
       --card: rgba(255,255,255,.08);
-      --card2: rgba(255,255,255,.10);
       --stroke: rgba(255,255,255,.12);
       --text:#E5E7EB;
       --muted:#94A3B8;
@@ -57,16 +61,20 @@
       align-items:center;
       min-width: 0;
     }
+
+    /* ✅ Replaced plain blue square with real icon image */
     .logo{
-      width:44px;height:44px;
+      width:44px;
+      height:44px;
       border-radius: 14px;
-      background:
-        radial-gradient(20px 20px at 30% 25%, rgba(255,255,255,.25), transparent 60%),
-        linear-gradient(135deg, rgba(99,102,241,.95), rgba(34,211,238,.95));
       box-shadow: var(--shadow);
       border: 1px solid rgba(255,255,255,.18);
       flex: 0 0 auto;
+      object-fit: cover;
+      background: rgba(255,255,255,.06);
+      display:block;
     }
+
     .brand h1{
       font-size: 16px;
       margin:0;
@@ -103,15 +111,6 @@
     .chip strong{ color: var(--text); font-weight: 600; }
 
     /* Cards */
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr;
-      gap: 14px;
-    }
-    @media (min-width: 860px){
-      .grid{ grid-template-columns: 1.2fr .8fr; }
-    }
-
     .card{
       background: var(--card);
       border: 1px solid var(--stroke);
@@ -381,7 +380,8 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <div class="logo" aria-hidden="true"></div>
+        <!-- ✅ Uses your uploaded icon image -->
+        <img class="logo" src="icon-192.png" alt="AminLogic Speedometer Icon" />
         <div style="min-width:0">
           <h1>AminLogic — Speedometer & Trip Tracker</h1>
           <p>Minimal driving utilities • Local-only trip planning</p>
@@ -465,7 +465,7 @@
       <div class="cardHeader">
         <div>
           <h2>Trip Planner</h2>
-          <div class="sub">Save journeys locally — a “booking-style” planner, not a ride service</div>
+          <div class="sub">Save journeys locally — planning only</div>
         </div>
         <span class="pill">🗓️ Plan • Save • Repeat</span>
       </div>
@@ -519,7 +519,7 @@
           </div>
 
           <div class="webviewHint">
-            Your trips are stored on this device only (localStorage). No accounts, no payments, no drivers.
+            Trips are stored on this device only. No accounts, no payments, no drivers.
           </div>
         </form>
       </div>
@@ -573,12 +573,7 @@
         <div class="hr"></div>
 
         <div class="note">
-          In Kodular, you can:
-          <ul>
-            <li>Show this Pro page in WebView</li>
-            <li>Place a native button below WebView (or overlay) that triggers your IAP</li>
-            <li>After purchase, pass a flag to this page (optional) or just unlock features natively</li>
-          </ul>
+          In Kodular, trigger your IAP natively. After purchase, remove ads and unlock features.
         </div>
 
         <div class="btnRow">
@@ -593,8 +588,9 @@
       </div>
     </section>
 
+    <!-- ✅ Footer cleaned: removed the oaicite/contentReference text completely -->
     <div class="webviewHint" style="margin-top:14px;">
-      © <span id="year"></span> AminLogic • “Enjoy your daily life with aminlogic apps!” :contentReference[oaicite:0]{index=0}
+      © <span id="year"></span> AminLogic • aminlogic.com
     </div>
   </div>
 
@@ -681,7 +677,6 @@
     }
 
     function haversineMeters(a, b){
-      // a,b: {lat, lon}
       const R = 6371000;
       const toRad = (d) => d * Math.PI/180;
       const dLat = toRad(b.lat - a.lat);
@@ -705,21 +700,17 @@
     function updateUI(speedMS, accuracy){
       const unit = unitSel.value;
 
-      // Speed
       const val = Math.max(0, msToUnit(speedMS || 0, unit));
       speedVal.textContent = Math.round(val);
 
-      // Distance
       const d = metersToUnit(totalMeters, unit);
       distVal.textContent = d.toFixed(2);
       distUnit.textContent = (unit === "mph") ? "mi" : "km";
 
-      // Max speed
       const maxU = msToUnit(maxSpeedMS, unit);
       maxVal.textContent = Math.round(maxU);
       maxUnit.textContent = (unit === "mph") ? "mph" : "km/h";
 
-      // Accuracy
       if(typeof accuracy === "number"){
         accState.textContent = Math.round(accuracy) + " m";
       }
@@ -734,11 +725,6 @@
       }, 500);
     }
 
-    function stopTimer(){
-      if(elapsedInterval) clearInterval(elapsedInterval);
-      elapsedInterval = null;
-    }
-
     function onPos(pos){
       if(paused) return;
 
@@ -749,16 +735,12 @@
       accState.textContent = (accuracy != null) ? (Math.round(accuracy) + " m") : "—";
 
       const cur = { lat: latitude, lon: longitude };
-
-      // speed can be null depending on device; we keep UI stable
       const speedMS = (typeof speed === "number" && speed >= 0) ? speed : 0;
 
       if(speedMS > maxSpeedMS) maxSpeedMS = speedMS;
 
       if(lastPos){
         const delta = haversineMeters(lastPos, cur);
-
-        // Filter out crazy jumps (GPS glitch). If jump > 250m in 1 update, ignore.
         if(delta < 250) totalMeters += delta;
       }
       lastPos = cur;
@@ -770,7 +752,7 @@
     function onErr(err){
       gpsState.textContent = "Off";
       permHint.textContent = "📍 Location blocked";
-      setStatus("Location error", err && err.message ? err.message : "Enable GPS permission");
+      setStatus("Location error", (err && err.message) ? err.message : "Enable GPS permission");
     }
 
     function beginWatch(){
@@ -779,23 +761,11 @@
         return;
       }
 
-      // iOS/Safari sometimes needs HTTPS — host via https
       watchId = navigator.geolocation.watchPosition(
         onPos,
         onErr,
-        {
-          enableHighAccuracy: true,
-          maximumAge: 1000,
-          timeout: 15000
-        }
+        { enableHighAccuracy: true, maximumAge: 1000, timeout: 15000 }
       );
-    }
-
-    function stopWatch(){
-      if(watchId != null){
-        navigator.geolocation.clearWatch(watchId);
-        watchId = null;
-      }
     }
 
     btnStart.addEventListener("click", () => {
@@ -804,7 +774,6 @@
       btnPause.disabled = false;
       btnReset.disabled = false;
 
-      // Start time if not set
       if(!startTime) startTime = Date.now();
       startTimer();
 
@@ -834,7 +803,6 @@
     });
 
     unitSel.addEventListener("change", () => {
-      // Refresh units
       updateUI(0, null);
     });
 
@@ -863,11 +831,26 @@
     }
 
     function badgeForTrip(t){
-      // simple badge based on whether date/time are set
       const hasDT = (t.date && t.time);
       if(hasDT) return { cls:"good", txt:"Scheduled" };
       if(t.date || t.time) return { cls:"warn", txt:"Planned" };
       return { cls:"bad", txt:"Draft" };
+    }
+
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, s => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
+      }[s]));
+    }
+
+    function cryptoRandomId(){
+      try{
+        const a = new Uint8Array(8);
+        crypto.getRandomValues(a);
+        return Array.from(a).map(x => x.toString(16).padStart(2,"0")).join("");
+      }catch(e){
+        return String(Date.now()) + "_" + Math.random().toString(16).slice(2);
+      }
     }
 
     function renderTrips(){
@@ -914,7 +897,6 @@
         top.appendChild(left);
         top.appendChild(right);
 
-        // Actions
         const actions = document.createElement("div");
         actions.className = "btnRow";
         actions.style.marginTop = "10px";
@@ -930,27 +912,6 @@
           renderTrips();
         });
 
-        const copy = document.createElement("button");
-        copy.className = "ghost";
-        copy.type = "button";
-        copy.textContent = "Copy details";
-        copy.addEventListener("click", async () => {
-          const text =
-`AminLogic Trip: ${t.name || ""}
-Vehicle: ${t.vehicle || ""}
-Start: ${t.start || ""}
-Destination: ${t.end || ""}
-When: ${[t.date, t.time].filter(Boolean).join(" ") || "—"}
-Notes: ${t.notes || "—"}`;
-          try{
-            await navigator.clipboard.writeText(text);
-            alert("Copied!");
-          }catch(e){
-            alert(text);
-          }
-        });
-
-        actions.appendChild(copy);
         actions.appendChild(del);
 
         div.appendChild(top);
@@ -980,10 +941,8 @@ Notes: ${t.notes || "—"}`;
       saveTrips(trips);
 
       tripForm.reset();
-
       alert("Trip saved locally ✅");
 
-      // switch to History tab
       document.querySelector('.tab[data-view="history"]').click();
     });
 
@@ -1009,35 +968,10 @@ Notes: ${t.notes || "—"}`;
       }, { enableHighAccuracy:true, timeout: 12000 });
     });
 
-    // ======== Utilities ========
-    function escapeHtml(str){
-      return String(str).replace(/[&<>"']/g, s => ({
-        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"
-      }[s]));
-    }
-
-    function cryptoRandomId(){
-      // fallback-safe random id
-      try{
-        const a = new Uint8Array(8);
-        crypto.getRandomValues(a);
-        return Array.from(a).map(x => x.toString(16).padStart(2,"0")).join("");
-      }catch(e){
-        return String(Date.now()) + "_" + Math.random().toString(16).slice(2);
-      }
-    }
-
     // init
     document.getElementById("year").textContent = new Date().getFullYear();
     updateUI(0, null);
     setStatus("Not tracking", "Press Start to begin");
-
-    // clean stop on hide (helps battery)
-    document.addEventListener("visibilitychange", () => {
-      if(document.hidden){
-        // don’t stop watch automatically (user may want background), but pause UI updates
-      }
-    });
   </script>
 </body>
 </html>
