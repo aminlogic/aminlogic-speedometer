@@ -6,10 +6,10 @@
   <meta name="theme-color" content="#0F172A" />
   <title>AminLogic — Speedometer & Trip Tracker</title>
 
-  <!-- ✅ Web + Android icons (served from your GitHub repo root) -->
+  <!-- App icons (upload these to repo root): icon-192.png, icon-512.png -->
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
   <link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
-  <link rel="apple-touch-icon" sizes="192xi91" href="icon-192.png">
+  <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png">
 
   <style>
     :root{
@@ -19,13 +19,13 @@
       --stroke: rgba(255,255,255,.12);
       --text:#E5E7EB;
       --muted:#94A3B8;
-      --accent:#6366F1;   /* indigo */
-      --accent2:#22D3EE;  /* cyan */
+      --accent:#6366F1;
+      --accent2:#22D3EE;
+      --shadow: 0 18px 50px rgba(0,0,0,.45);
+      --radius: 18px;
       --good:#34D399;
       --warn:#FBBF24;
       --bad:#FB7185;
-      --shadow: 0 18px 50px rgba(0,0,0,.45);
-      --radius: 18px;
     }
 
     *{ box-sizing:border-box; }
@@ -61,8 +61,6 @@
       align-items:center;
       min-width: 0;
     }
-
-    /* ✅ Replaced plain blue square with real icon image */
     .logo{
       width:44px;
       height:44px;
@@ -74,7 +72,6 @@
       background: rgba(255,255,255,.06);
       display:block;
     }
-
     .brand h1{
       font-size: 16px;
       margin:0;
@@ -380,7 +377,6 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <!-- ✅ Uses your uploaded icon image -->
         <img class="logo" src="icon-192.png" alt="AminLogic Speedometer Icon" />
         <div style="min-width:0">
           <h1>AminLogic — Speedometer & Trip Tracker</h1>
@@ -541,66 +537,17 @@
       </div>
     </section>
 
-    <!-- PRO -->
-    <section id="view-pro" class="card hidden">
-      <div class="cardHeader">
-        <div>
-          <h2>AminLogic Pro</h2>
-          <div class="sub">Connect this page to your Kodular In-App Purchase</div>
-        </div>
-        <span class="pill">✨ Premium</span>
-      </div>
-
-      <div class="cardBody">
-        <div class="row">
-          <div class="stat">
-            <div class="k">Pro unlock</div>
-            <div class="v" style="font-size:18px">Remove ads</div>
-            <div class="u">Cleaner experience</div>
-          </div>
-          <div class="stat">
-            <div class="k">Pro unlock</div>
-            <div class="v" style="font-size:18px">Unlimited trip saves</div>
-            <div class="u">No limits</div>
-          </div>
-          <div class="stat">
-            <div class="k">Pro unlock</div>
-            <div class="v" style="font-size:18px">Extra stats</div>
-            <div class="u">More insights</div>
-          </div>
-        </div>
-
-        <div class="hr"></div>
-
-        <div class="note">
-          In Kodular, trigger your IAP natively. After purchase, remove ads and unlock features.
-        </div>
-
-        <div class="btnRow">
-          <a class="btn primary" href="#" onclick="alert('Trigger your Kodular IAP here (native).'); return false;">🔓 Unlock Pro (Native IAP)</a>
-          <a class="btn ghost" href="#" onclick="alert('Add your support link / privacy policy here.'); return false;">ℹ️ About AminLogic</a>
-        </div>
-
-        <div class="hr"></div>
-        <div class="note">
-          <strong>Policy-safe note:</strong> This app is a driving utility. No ride-hailing, no booking payments, no drivers.
-        </div>
-      </div>
-    </section>
-
-    <!-- ✅ Footer cleaned: removed the oaicite/contentReference text completely -->
     <div class="webviewHint" style="margin-top:14px;">
-      © <span id="year"></span> AminLogic • aminlogic.com
+      © <span id="year"></span> AminLogic • Speed & Trip Utility • aminlogic.com
     </div>
   </div>
 
-  <!-- Bottom nav -->
+  <!-- Bottom nav (Pro removed) -->
   <div class="nav">
     <div class="navInner">
       <div class="tab active" data-view="dashboard">Speed</div>
       <div class="tab" data-view="planner">Planner</div>
       <div class="tab" data-view="history">History</div>
-      <div class="tab" data-view="pro">Pro</div>
     </div>
   </div>
 
@@ -609,8 +556,7 @@
     const views = {
       dashboard: document.getElementById("view-dashboard"),
       planner: document.getElementById("view-planner"),
-      history: document.getElementById("view-history"),
-      pro: document.getElementById("view-pro")
+      history: document.getElementById("view-history")
     };
 
     document.querySelectorAll(".tab").forEach(tab => {
